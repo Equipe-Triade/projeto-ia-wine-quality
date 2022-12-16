@@ -1,20 +1,312 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
+  <ion-toolbar color="primary">
+    
     <ion-title>
-      Blank
+      <ion-icon name="wine-outline"></ion-icon> Wine Quality
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" color="tertiary">
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <div>
+    <ion-card color="secondary">
+      <ion-card-header>
+        <ion-card-title>Treinando algoritmo para encontrar a qualidade dos vinhos</ion-card-title>
+      </ion-card-header>
+  
+      <ion-card-content>
+        Para o funcionamento da aplicação, é necessário submeter o arquivo csv com a base de dados escolhida. Após o seu carregamento, o algoritmo Decision Tree (Árvore de Decisão) classificará os vinhos conforme as categorias: alta, média e baixa.
+        
+      </ion-card-content>
+    </ion-card>
+
   </div>
+
+  
+
+  <div id="container" *ngIf="resultado == false">
+
+    <ion-grid>
+      <ion-row>
+
+        <ion-col>
+          <ion-card color="secondary">
+            <input type="file" (change)="carregandoArquivoDoDispositivo($event)" id="file-input" accept="text/csv">
+          </ion-card>
+        </ion-col>
+
+        <ion-col>
+          <ion-button (click)="passandoArquivoParaAPI()" [disabled]="btn_upload">
+            <ion-icon lazy="true" slot="start" name="cloud-upload"></ion-icon>
+            <ion-label slot="end">Upload arquivo</ion-label>
+          </ion-button>
+        </ion-col>
+
+      </ion-row>
+    </ion-grid>
+
+  </div>
+
+
+  <div *ngIf="resultado == true" style="padding-left: 10px">
+
+    <div id="container" *ngIf="carregando == true">
+      <ion-spinner name="lines" color="primary"></ion-spinner>
+
+    </div>
+
+    <div *ngIf="carregando == false">
+
+      <div>
+        <ion-text color="secondary">
+  
+          <h4><strong>Parâmetros escolhidos e utilizados pelo modelo</strong></h4>
+
+          <ul>
+            <li>criterion = {{ resultado_modelo['melhores_parametros_encontrados']['criterion'] | json }}</li>
+            <li>max_depth = {{ resultado_modelo['melhores_parametros_encontrados']['max_depth'] | json }}</li>
+            <li>min_samples_leaf = {{ resultado_modelo['melhores_parametros_encontrados']['min_samples_leaf'] | json }}</li>
+            <li>min_samples_split = {{ resultado_modelo['melhores_parametros_encontrados']['min_samples_split'] | json }}</li>
+          </ul>
+  
+        </ion-text>
+  
+      </div>
+  
+      
+      <div style="padding-top: 20px">
+        <div class="ion-text-start">
+          <ion-text color="secondary" class="ion-justify-content-start">
+            <h4><strong>Resultados</strong></h4>
+            <br>
+    
+          </ion-text>
+  
+        </div>
+  
+        <div>
+          <ion-grid style="text-align: center">
+  
+            <ion-row class="ion-justify-content-center">
+              <ion-text color="primary">
+                MATRIZ DE CONFUSÃO
+              </ion-text>
+              
+            </ion-row>
+    
+    
+            <ion-row class="ion-justify-content-center ion-align-items-center">
+    
+              <ion-col size="auto">
+                Real
+    
+              </ion-col>
+    
+    
+              <ion-col>
+    
+    
+                <ion-row >
+    
+                  <ion-col>
+                  </ion-col>
+        
+                  <ion-col>
+                    {{ resultado_modelo['matriz_confusao']['nomes_classes']['0'] }}
+                  </ion-col>
+        
+                  <ion-col>
+                    {{ resultado_modelo['matriz_confusao']['nomes_classes']['1'] }}
+        
+                  </ion-col>
+        
+                  <ion-col>
+                    {{ resultado_modelo['matriz_confusao']['nomes_classes']['2'] }}
+        
+                  </ion-col>
+        
+                </ion-row>
+        
+        
+        
+        
+        
+        
+                <ion-row >
+        
+        
+                  <ion-col>
+                    {{ resultado_modelo['matriz_confusao']['nomes_classes']['0'] }}
+        
+                  </ion-col>
+        
+                  <ion-col style="border: 2px solid #9e3b42">
+                          {{ resultado_modelo['matriz_confusao']['valores']['linha0xcoluna0'] }}
+                  </ion-col>
+                          
+                  <ion-col style="border: 2px solid #9e3b42">
+                          {{ resultado_modelo['matriz_confusao']['valores']['linha0xcoluna1'] }}
+                  </ion-col>
+        
+                  <ion-col style="border: 2px solid #9e3b42">
+                    {{ resultado_modelo['matriz_confusao']['valores']['linha0xcoluna2'] }}
+                  </ion-col>
+        
+                </ion-row>
+        
+        
+        
+        
+                <ion-row>
+        
+                  <ion-col>
+                    {{ resultado_modelo['matriz_confusao']['nomes_classes']['1'] }}
+        
+                  </ion-col>
+        
+                  <ion-col style="border: 2px solid #9e3b42">
+                          {{ resultado_modelo['matriz_confusao']['valores']['linha1xcoluna0'] }}
+                  </ion-col>
+                          
+                  <ion-col style="border: 2px solid #9e3b42">
+                          {{ resultado_modelo['matriz_confusao']['valores']['linha1xcoluna1'] }}
+                  </ion-col>
+        
+                  <ion-col style="border: 2px solid #9e3b42">
+                    {{ resultado_modelo['matriz_confusao']['valores']['linha1xcoluna2'] }}
+                  </ion-col>
+        
+                </ion-row>
+        
+                <ion-row>
+        
+                  <ion-col>
+                    {{ resultado_modelo['matriz_confusao']['nomes_classes']['2'] }}
+        
+                  </ion-col>
+        
+                  <ion-col style="border: 2px solid #9e3b42">
+                          {{ resultado_modelo['matriz_confusao']['valores']['linha2xcoluna0'] }}
+                  </ion-col>
+                          
+                  <ion-col style="border: 2px solid #9e3b42">
+                          {{ resultado_modelo['matriz_confusao']['valores']['linha2xcoluna1'] }}
+                  </ion-col>
+        
+                  <ion-col style="border: 2px solid #9e3b42">
+                    {{ resultado_modelo['matriz_confusao']['valores']['linha2xcoluna2'] }}
+                  </ion-col>
+        
+                </ion-row>
+        
+                <ion-row class="ion-justify-content-center">
+    
+                  <ion-col></ion-col>
+                  <ion-col size="9">Previsto</ion-col>
+                  
+                </ion-row>
+    
+    
+    
+    
+    
+    
+              </ion-col>
+              
+            </ion-row>
+    
+    
+            
+    
+    
+    
+          </ion-grid>
+  
+        </div>
+
+
+        <div class="ion-text-start">
+          <br>
+          <ion-text color="secondary" class="ion-justify-content-start">
+            <p>Métricas gerais:</p>
+            <ul>
+              <li>Acurácia do Modelo: {{ resultado_modelo['metricas_de_cada_classe']['accuracy'] | number: '1.2-4' }}</li>
+
+              <li>
+                Métricas da classe "alta":
+                <ul>
+                  <li>Precisão: {{ resultado_modelo['metricas_de_cada_classe']['alta']['precision'] | number: '1.2-4' }}</li>
+                  <li>Recall: {{ resultado_modelo['metricas_de_cada_classe']['alta']['recall'] | number: '1.2-4' }}</li>
+                  <li>F1-score: {{ resultado_modelo['metricas_de_cada_classe']['alta']['f1-score'] | number: '1.2-4' }}</li>
+                  
+                </ul>
+              </li>
+
+              <li>
+                Métricas da classe "média":
+                <ul>
+                  <li>Precisão: {{ resultado_modelo['metricas_de_cada_classe']['média']['precision'] | number: '1.2-4' }}</li>
+                  <li>Recall: {{ resultado_modelo['metricas_de_cada_classe']['média']['recall'] | number: '1.2-4' }}</li>
+                  <li>F1-score: {{ resultado_modelo['metricas_de_cada_classe']['média']['f1-score'] | number: '1.2-4' }}</li>
+                  
+                </ul>
+              </li>
+
+              <li>
+                Métricas da classe "baixa":
+                <ul>
+                  <li>Precisão: {{ resultado_modelo['metricas_de_cada_classe']['baixa']['precision'] | number: '1.2-4' }}</li>
+                  <li>Recall: {{ resultado_modelo['metricas_de_cada_classe']['baixa']['recall'] | number: '1.2-4' }}</li>
+                  <li>F1-score: {{ resultado_modelo['metricas_de_cada_classe']['baixa']['f1-score'] | number: '1.2-4' }}</li>
+                  
+                </ul>
+              </li>
+
+            </ul>
+
+    
+          </ion-text>
+  
+        </div>
+  
+  
+      </div>
+  
+  
+      <div>
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              <ion-button (click)="resultado = false; btn_upload= true">
+                <ion-icon lazy="true" slot="start" name="arrow-back"></ion-icon>
+                <ion-label slot="end">Voltar</ion-label>
+              </ion-button>
+            </ion-col>
+            
+          </ion-row>
+        </ion-grid>
+      </div>
+
+
+    </div>
+
+    
+    
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 </ion-content>
+
